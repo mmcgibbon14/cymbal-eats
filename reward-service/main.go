@@ -39,7 +39,7 @@ type user struct {
 }
 
 const t = "order-topic"
-const s = "rewards-subscription"
+const s = "order-subscription"
 
 func init() {
 	//create rewards store based on the event stream
@@ -126,10 +126,7 @@ func rewardWriter() {
 		log.Printf("Error creating pubsub client with message %v", err)
 	}
 
-	topic := c.Topic(t)
-
-	sub, err := c.CreateSubscription(context.Background(), s,
-		pubsub.SubscriptionConfig{Topic: topic})
+	sub := c.Subscription(s)
 
 	err = sub.Receive(ctx, func(ctx context.Context, m *pubsub.Message) {
 		log.Printf("Got message: %s", m.Data)
