@@ -17,6 +17,7 @@
 export INVENTORY_SERVICE_NAME=inventory-service
 export MENU_SERVICE_NAME=menu-service
 export ORDER_SERVICE_NAME=order-service
+export REWARD_SERVICE_NAME=reward-service
 
 export CUSTOMER_SERVICE_NAME=customer-ui-service
 export EMPLOYEE_SERVICE_NAME=employee-ui-service
