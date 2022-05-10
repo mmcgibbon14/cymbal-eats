@@ -53,13 +53,13 @@ func main() {
 	r.HandleFunc("/v1/rewards/user/{email}", rewardHandler).Methods(http.MethodGet, http.MethodPost)
 	r.HandleFunc("/rewards/health", healthCheck).Methods(http.MethodGet)
 
-	// Determine port for HTTP service.
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 		log.Printf("defaulting to port %s", port)
 	}
 
+	//code sample from mux - https://github.com/gorilla/mux
 	srv := &http.Server{
 		Addr: ":" + port,
 		// Good practice to set timeouts to avoid Slowloris attacks.
@@ -83,8 +83,6 @@ func main() {
 	}()
 
 	c := make(chan os.Signal, 1)
-	// We'll accept graceful shutdowns when quit via SIGINT (Ctrl+C)
-	// SIGKILL, SIGQUIT or SIGTERM (Ctrl+/) will not be caught.
 	signal.Notify(c, os.Interrupt)
 
 	// Block until we receive our signal.
@@ -96,9 +94,6 @@ func main() {
 	// Doesn't block if no connections, but will otherwise wait
 	// until the timeout deadline.
 	srv.Shutdown(ctx)
-	// Optionally, you could run srv.Shutdown in a goroutine and block on
-	// <-ctx.Done() if your application should wait for other services
-	// to finalize based on context cancellation.
 	log.Println("shutting down")
 	os.Exit(0)
 
@@ -131,7 +126,10 @@ func rewardWriter() {
 		log.Printf("Error creating pubsub client with message %v", err)
 	}
 
-	sub := c.Subscription(s)
+	topic := c.Topic(t)
+
+	sub, err := c.CreateSubscription(context.Background(), s,
+		pubsub.SubscriptionConfig{Topic: topic})
 
 	err = sub.Receive(ctx, func(ctx context.Context, m *pubsub.Message) {
 		log.Printf("Got message: %s", m.Data)
